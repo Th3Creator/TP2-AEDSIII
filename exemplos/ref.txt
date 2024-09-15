@@ -1,0 +1,5 @@
+dijkstra: https://github.com/HenriqueNizolli/Algoritmo_de_Dijkstra
+
+belman: https://github.com/arnab132/Bellman-Ford-Algorithm-Python
+
+floyd: https://github.com/smbanaie/floyd-warshall-python
