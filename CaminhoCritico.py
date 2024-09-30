@@ -7,12 +7,29 @@ def grafo_csv(nomeArquivo):
 
     try:
         with open(nomeArquivo, 'r', encoding='utf-8') as file:
-            reader = csv.reader(file)
-            next(reader)  # Ignorar o cabeçalho, se houver
+            reader = csv.DictReader(file)
+
+            # Verificação dos cabeçalhos
+            expected_headers = ['Código', 'Nome', 'Período', 'Duração', 'Dependências']
+            if reader.fieldnames != expected_headers:
+                print(f"Erro: O arquivo deve conter os cabeçalhos {expected_headers}.")
+                return None
+
             for row in reader:
-                if len(row) >= 3:
-                    source, target, weight = row[0], row[1], int(row[2])
-                    G.add_edge(source, target, weight=weight)
+                codigo = row['Código']
+                nome = row['Nome']
+                periodo = int(row['Período'])
+                duracao = int(row['Duração'])
+                dependencias = row['Dependências']
+
+                # Adiciona o nó correspondente ao curso
+                G.add_node(codigo, nome=nome, periodo=periodo, duracao=duracao)
+
+                # Se houver dependências, adiciona arestas entre os cursos
+                if dependencias:
+                    for dependencia in dependencias.split(','):
+                        G.add_edge(dependencia.strip(), codigo)
+
     except FileNotFoundError:
         print(f"Erro: Arquivo {nomeArquivo} não encontrado.")
         return None
@@ -43,3 +60,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
