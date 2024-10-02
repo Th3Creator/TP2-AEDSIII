@@ -18,18 +18,11 @@ def grafo_csv(nomeArquivo):
 
             for row in reader:
                 codigo = row['Código']
-                nome = row['Nome']
-                periodo = int(row['Período'])
-                duracao = int(row['Duração'])
-                dependencias = row['Dependências']
+                G.add_node(codigo, nome=row['Nome'], periodo=int(row['Período']), duracao=int(row['Duração']))
 
-                # Adiciona o nó correspondente ao curso
-                G.add_node(codigo, nome=nome, periodo=periodo, duracao=duracao)
-
-                # Se houver dependências, adiciona arestas entre os cursos
-                if dependencias:
-                    for dependencia in dependencias.split(';'):  # Modificado para ';' em vez de ','
-                        G.add_edge(dependencia.strip(), codigo, weight=duracao)  # Peso positivo para a duração
+                dependencias = row['Dependências'].split(';') if row['Dependências'] else []
+                for dependencia in map(str.strip, dependencias):
+                    G.add_edge(dependencia, codigo, weight=int(row['Duração']))
 
     except FileNotFoundError:
         print(f"Erro: Arquivo {nomeArquivo} não encontrado.")
@@ -44,15 +37,12 @@ def grafo_csv(nomeArquivo):
 def encontrar_caminho_critico(G):
     # Acha a fonte do grafo (nó sem predecessores)
     sources = [n for n in G.nodes if G.in_degree(n) == 0]
-
-    # Inicializar as variáveis
-    longest_path = []
+    
     max_duration = -math.inf
+    longest_path = []
 
-    # Percorre cada nó fonte e aplica o Bellman-Ford para encontrar o caminho mais longo
     for source in sources:
         try:
-            # Tenta encontrar o caminho mais longo a partir dessa fonte
             distancias = nx.single_source_bellman_ford_path_length(G, source, weight='weight')
             for node, distance in distancias.items():
                 if distance > max_duration:
@@ -62,10 +52,10 @@ def encontrar_caminho_critico(G):
             print("Erro: O grafo contém um ciclo de dependência.")
             return None, None
 
-    # Ordenar pelo período para garantir que os cursos estão na ordem temporal correta
-    longest_path = sorted(longest_path, key=lambda x: G.nodes[x]['periodo'])
-    
-    # Calcular a duração total do caminho crítico com base na soma das durações dos cursos
+    # Ordenar o caminho crítico pelo período
+    longest_path.sort(key=lambda x: G.nodes[x]['periodo'])
+
+    # Calcular a duração total
     duracao_total = sum(G.nodes[curso]['duracao'] for curso in longest_path)
 
     return longest_path, duracao_total
@@ -74,8 +64,7 @@ def encontrar_caminho_critico(G):
 def imprimir_caminho_critico(G, caminho_critico, duracao_total):
     print("\nCaminho Crítico:")
     for curso in caminho_critico:
-        nome_curso = G.nodes[curso]['nome']
-        print(f"- {nome_curso}")
+        print(f"- {G.nodes[curso]['nome']}")
 
     print(f"\nTempo Mínimo: {duracao_total}")
 
@@ -83,17 +72,14 @@ def imprimir_caminho_critico(G, caminho_critico, duracao_total):
 def main():
     while True:
         nomeArquivo = input("Informe o arquivo (0 para sair): ")
-
         if nomeArquivo == '0':
             print("Encerrando o programa.")
             break
         
         print("Processando ...")
-        
-        # Carregar o grafo a partir do arquivo CSV
         grafo = grafo_csv(nomeArquivo)
 
-        if grafo is not None:
+        if grafo:
             caminho_critico, duracao_total = encontrar_caminho_critico(grafo)
             if caminho_critico:
                 imprimir_caminho_critico(grafo, caminho_critico, duracao_total)
