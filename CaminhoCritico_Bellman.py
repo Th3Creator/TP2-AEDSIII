@@ -38,27 +38,30 @@ def encontrar_caminho_critico(G):
     # Acha a fonte do grafo (nó sem predecessores)
     sources = [n for n in G.nodes if G.in_degree(n) == 0]
     
+    max_path = []
     max_duration = -math.inf
-    longest_path = []
 
     for source in sources:
         try:
-            distancias = nx.single_source_bellman_ford_path_length(G, source, weight='weight')
-            for node, distance in distancias.items():
-                if distance > max_duration:
-                    max_duration = distance
-                    longest_path = nx.bellman_ford_path(G, source, node, weight='weight')
+            # Tenta encontrar todos os caminhos a partir dessa fonte
+            for target in G.nodes:
+                if nx.has_path(G, source, target):
+                    path = nx.bellman_ford_path(G, source, target, weight='weight')
+                    path_duration = sum(G.nodes[node]['duracao'] for node in path)
+                    
+                    # Verifica se o caminho é mais longo
+                    if path_duration > max_duration or (path_duration == max_duration and len(path) > len(max_path)):
+                        max_duration = path_duration
+                        max_path = path
+                        
         except nx.NetworkXUnbounded:
             print("Erro: O grafo contém um ciclo de dependência.")
             return None, None
 
     # Ordenar o caminho crítico pelo período
-    longest_path.sort(key=lambda x: G.nodes[x]['periodo'])
+    max_path.sort(key=lambda x: G.nodes[x]['periodo'])
 
-    # Calcular a duração total
-    duracao_total = sum(G.nodes[curso]['duracao'] for curso in longest_path)
-
-    return longest_path, duracao_total
+    return max_path, max_duration
 
 # Função para imprimir o caminho crítico com os nomes dos cursos
 def imprimir_caminho_critico(G, caminho_critico, duracao_total):
