@@ -1,6 +1,6 @@
 # TP2-AEDSIII
 
-# Caminho Crítico de Projetos
+# Caminho Crítico
 
 ## Descrição do Projeto
 
