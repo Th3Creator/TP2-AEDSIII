@@ -32,7 +32,11 @@ Este projeto visa carregar um arquivo CSV contendo informações de cursos e sua
 
 ### Instruções de Execução
 
-1. Certifique-se de que o arquivo CSV está no formato correto(Código,Nome,Período,Duração,Dependências).
+1. Certifique-se de que o arquivo CSV está no formato correto (Código,Nome,Período,Duração,Dependências).
 2. Execute o script.
-3. Quando solicitado, informe o nome do arquivo CSV.
+3. Insira o arquivo, seguindo o modelo "arquivos_csv/nomeArquivo.csv".
 4. O programa carregará os dados e exibirá o caminho crítico com o tempo mínimo de conclusão.
+
+## Autores
+
+Felipe Fialho e Christian Daniel
