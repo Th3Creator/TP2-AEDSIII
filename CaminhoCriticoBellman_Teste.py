@@ -28,7 +28,7 @@ def grafo_csv(nomeArquivo):
 
                 # Se houver dependências, adiciona arestas entre os cursos
                 if dependencias:
-                    for dependencia in dependencias.split(','):
+                    for dependencia in dependencias.split(';'):  # Modificado para ';' em vez de ','
                         G.add_edge(dependencia.strip(), codigo, weight=duracao)  # Peso positivo para a duração
 
     except FileNotFoundError:
